@@ -160,19 +160,22 @@ export class TouchControls {
   }
 
   beginSteer(clientX) {
+    this.steerOrigin = clientX;
     this.input.setVirtual("accelerate", true);
     this.updateSteer(clientX);
     logger.debug("touch", "steer begin");
   }
 
-  // Position-based steering: finger left of center steers left,
-  // proportionally to the offset, with a small dead zone at center.
+  // Delta-based steering: steer is proportional to how far the finger
+  // has dragged from the touchdown point, not where it is on screen.
+  // Touch anywhere = drive straight; drag = steer. Matches Asphalt 9.
   updateSteer(clientX) {
     const width = window.innerWidth || this.dom.clientWidth || 800;
-    const center = width / 2;
-    const range = width * 0.28; // full lock at ~28% of screen width
-    const raw = clamp((clientX - center) / range, -1, 1);
-    const dead = 0.05;
+    const range = width * 0.2; // full lock at ~20% of screen width
+    const delta = clientX - (this.steerOrigin ?? clientX);
+    const raw = clamp(delta / range, -1, 1);
+    // Small dead zone around the touchdown point (jitter filter).
+    const dead = 0.04;
     const steer =
       Math.abs(raw) < dead ? 0 : (raw - Math.sign(raw) * dead) / (1 - dead);
     this.input.setSteer(steer);
