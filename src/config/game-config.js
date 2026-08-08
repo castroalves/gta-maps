@@ -27,4 +27,9 @@ export const GAME_CONFIG = {
   onRoadTolerance: 1.5,
 
   maxTileCacheSize: 200,
+
+  // TouchDrive road-following assist tuning.
+  autoDriveGain: 2.6, // steering response to heading error (radians -> -1..1)
+  autoDriveStrength: 0.65, // how much assist blends under manual steering
+  autoDriveRadius: 45, // road search radius for the assist
 };

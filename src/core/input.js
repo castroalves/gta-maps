@@ -18,6 +18,7 @@ export class Input {
       left: false,
       right: false,
       handbrake: false,
+      steer: 0, // continuous -1..1 from the touch steering zone
     };
     this.state = {
       accelerate: false,
@@ -25,6 +26,7 @@ export class Input {
       left: false,
       right: false,
       handbrake: false,
+      steer: 0, // continuous steering value read by physics
     };
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onKeyUp = this.onKeyUp.bind(this);
@@ -77,15 +79,27 @@ export class Input {
     this.refresh();
   }
 
+  // Continuous steering from the touch steering zone, -1..1.
+  setSteer(value) {
+    this.virtual.steer = Math.max(-1, Math.min(1, value));
+    this.refresh();
+  }
+
   refresh() {
     const s = this.state;
     const k = this.keys;
     const v = this.virtual;
     s.accelerate = k.has("KeyW") || k.has("ArrowUp") || v.accelerate;
     s.brake = k.has("KeyS") || k.has("ArrowDown") || v.brake;
-    s.left = k.has("KeyA") || k.has("ArrowLeft") || v.left;
-    s.right = k.has("KeyD") || k.has("ArrowRight") || v.right;
     s.handbrake = k.has("Space") || v.handbrake;
+    const keySteer =
+      (k.has("KeyD") || k.has("ArrowRight") ? 1 : 0) -
+      (k.has("KeyA") || k.has("ArrowLeft") ? 1 : 0);
+    const btnSteer = (v.right ? 1 : 0) - (v.left ? 1 : 0);
+    // Continuous touch steering takes priority over discrete buttons.
+    s.steer = Math.abs(v.steer) > 0.001 ? v.steer : btnSteer || keySteer;
+    s.left = s.steer < 0;
+    s.right = s.steer > 0;
   }
 
   clear() {
@@ -96,6 +110,7 @@ export class Input {
       left: false,
       right: false,
       handbrake: false,
+      steer: 0,
     };
     this.refresh();
   }

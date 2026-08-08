@@ -4,6 +4,7 @@
 
 import { GAME_CONFIG } from "../config/game-config.js";
 import { latLngToLocalMeters } from "../geo/coordinates.js";
+import { segmentHeading } from "../world/road-segment.js";
 import { logger } from "../utils/logger.js";
 
 export class SpawnSystem {
@@ -28,12 +29,4 @@ export class SpawnSystem {
     );
     return { x: p.x, y: p.y, heading };
   }
-}
-
-// Segment direction vector is (dx, dy); forward is (sin h, -cos h),
-// so h = atan2(dx, -dy).
-function segmentHeading(segment) {
-  const dx = segment.bx - segment.ax;
-  const dy = segment.by - segment.ay;
-  return Math.atan2(dx, -dy);
 }

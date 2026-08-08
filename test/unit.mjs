@@ -22,6 +22,7 @@ import { Camera } from "../src/core/camera.js";
 import { TileCache } from "../src/map/tile-cache.js";
 import { GAME_CONFIG } from "../src/config/game-config.js";
 import { Input } from "../src/core/input.js";
+import { AutoDriveSystem } from "../src/systems/auto-drive-system.js";
 import { EsriTileProvider } from "../src/map/esri-tile-provider.js";
 import { CartoTileProvider } from "../src/map/carto-tile-provider.js";
 import { createTileProvider } from "../src/map/provider-registry.js";
@@ -179,11 +180,11 @@ check("brakes to reverse", car2.speed < -1, `speed=${car2.speed}`);
 // Frame independence: 60Hz x 2s vs 120Hz x 2s.
 const a = new PlayerCar();
 a.snapPosition(0, 0, 0);
-a.interpretInput({ accelerate: true, brake: false, left: true, right: false, handbrake: false });
+a.interpretInput({ accelerate: true, brake: false, handbrake: false, steer: -1 });
 for (let i = 0; i < 60 * 2; i++) phys.update(a, 1 / 60);
 const b = new PlayerCar();
 b.snapPosition(0, 0, 0);
-b.interpretInput({ accelerate: true, brake: false, left: true, right: false, handbrake: false });
+b.interpretInput({ accelerate: true, brake: false, handbrake: false, steer: -1 });
 for (let i = 0; i < 120 * 2; i++) phys.update(b, 1 / 120);
 check(
   "frame independence",
@@ -191,12 +192,12 @@ check(
   `a=(${a.position.x.toFixed(2)},${a.position.y.toFixed(2)}) b=(${b.position.x.toFixed(2)},${b.position.y.toFixed(2)})`
 );
 
-// Steering: hold D -> heading should increase (clockwise = east from north).
+// Steering: steer = +1 (hold D) -> heading should grow (east from north).
 const c = new PlayerCar();
 c.snapPosition(0, 0, 0);
-c.interpretInput({ accelerate: true, brake: false, left: false, right: true, handbrake: false });
+c.interpretInput({ accelerate: true, brake: false, handbrake: false, steer: 1 });
 for (let i = 0; i < 60 * 3; i++) phys.update(c, dt);
-check("D turns right (heading grows)", c.heading > 0.5, `heading=${c.heading}`);
+check("steer right turns (heading grows)", c.heading > 0.5, `heading=${c.heading}`);
 
 // Off-road multiplier.
 const d = new PlayerCar();
@@ -249,6 +250,33 @@ check("virtual release", inp.state.accelerate === false);
 inp.setVirtual("handbrake", true);
 inp.clear();
 check("clear resets virtual", inp.state.handbrake === false);
+
+// 13. Continuous steering + TouchDrive assist.
+console.log("touch drive");
+const steerInput = new Input();
+steerInput.setSteer(0.5);
+check("setSteer continuous", close(steerInput.state.steer, 0.5));
+steerInput.setSteer(2);
+check("setSteer clamped", close(steerInput.state.steer, 1));
+steerInput.setSteer(0);
+steerInput.setVirtual("left", true);
+check("button steer left", close(steerInput.state.steer, -1));
+
+const assistWorld = { roadNetwork: network }; // road runs north-south at x=0
+const autoDrive = new AutoDriveSystem(assistWorld);
+const facingCar = new PlayerCar();
+facingCar.snapPosition(0, 0, 0); // heading north = aligned with the road
+check("assist zero when aligned", close(autoDrive.steer(facingCar), 0, 0.05), autoDrive.steer(facingCar));
+const sidewaysCar = new PlayerCar();
+sidewaysCar.snapPosition(0, 0, Math.PI / 2); // heading east, across the road
+const steer = autoDrive.steer(sidewaysCar);
+check("assist steers toward road", Math.abs(steer) > 0.5, steer);
+
+const blendCar = new PlayerCar();
+blendCar.interpretInput({ accelerate: true, brake: false, handbrake: false, steer: 0 }, 0.8);
+check("assist blends when idle", close(blendCar.steerInput, 0.8 * GAME_CONFIG.autoDriveStrength, 0.01), blendCar.steerInput);
+blendCar.interpretInput({ accelerate: true, brake: false, handbrake: false, steer: 1 }, 0.8);
+check("manual wins when steering", close(blendCar.steerInput, 1, 0.01), blendCar.steerInput);
 
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed > 0 ? 1 : 0);

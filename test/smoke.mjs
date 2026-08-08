@@ -138,8 +138,10 @@ const game = new Game(dom);
 
 await game.init();
 check("boots to MENU", game.state === GameState.MENU);
-check("touch controls wired", game.touchControls.buttons.length === 6);
+check("touch controls wired", game.touchControls.buttons.length === 4);
+check("steer zone bound", game.touchControls.steerZone !== null);
 check("touch controls hidden on desktop", game.touchControls.dom.hidden === true);
+check("auto-drive on by default", game.autoDrive.enabled === true);
 
 // Geocoder path: search "Lisboa" -> Nominatim mock -> load world.
 await game.menu.submit("Lisboa");
@@ -152,9 +154,10 @@ check("attribution set", dom.querySelector("#attribution").textContent.includes(
 // Simulate frames with W held (accelerate + steer right).
 let t = 0;
 game.input.state.accelerate = true;
-game.input.state.right = true;
+game.input.state.steer = 0.5;
 const startX = game.player.position.x;
 const startY = game.player.position.y;
+const startHeading = game.player.heading;
 for (let i = 0; i < 5; i++) {
   t += 16.667;
   rafCallback(t);
@@ -166,6 +169,14 @@ for (let i = 5; i < 120; i++) {
 }
 check("car accelerated", game.player.speed > 5, `speed=${game.player.speed.toFixed(1)}`);
 check("car moved", Math.abs(game.player.position.x - startX) + Math.abs(game.player.position.y - startY) > 1);
+check("car turned from steering", game.player.heading !== startHeading, `h=${game.player.heading.toFixed(2)}`);
+
+// Assist toggle via the touch-control callback.
+game.touchControls.onToggleAssist();
+check("assist toggled off", game.autoDrive.enabled === false);
+check("assist button label updated", game.touchControls.toggleBtn.textContent === "MANUAL");
+game.touchControls.onToggleAssist();
+check("assist toggled on", game.autoDrive.enabled === true);
 
 // Handbrake + pause + resume.
 game.input.state.handbrake = true;

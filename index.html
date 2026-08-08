@@ -36,7 +36,8 @@
           <button id="retry-button" type="button">RETRY</button>
         </div>
       </div>
-      <p class="hint">WASD / arrows to drive &middot; SPACE handbrake &middot; ESC pause &middot; F3 debug</p>
+      <p class="hint">WASD / arrows &middot; SPACE handbrake &middot; ESC pause &middot; F3 debug &middot; Y auto-steer</p>
+      <p class="hint" id="touch-hint" hidden>TOUCH: hold anywhere to drive &middot; drag to steer &middot; AUTO follows the road</p>
     </section>
 
     <section id="game" hidden>
@@ -55,11 +56,10 @@
       <div id="hud-warning" hidden>LEAVING LOADED AREA</div>
 
       <div id="touch-controls" hidden>
-        <button class="touch-btn steer" id="btn-left" aria-label="Steer left">&#9664;</button>
-        <button class="touch-btn steer" id="btn-right" aria-label="Steer right">&#9654;</button>
+        <div id="steer-zone" aria-hidden="true"></div>
         <button class="touch-btn action" id="btn-brake" aria-label="Brake / reverse">BRAKE</button>
         <button class="touch-btn action" id="btn-handbrake" aria-label="Handbrake">HB</button>
-        <button class="touch-btn action gas" id="btn-gas" aria-label="Accelerate">GAS</button>
+        <button class="touch-btn assist" id="btn-assist" aria-label="Toggle auto-drive assist">AUTO</button>
         <button class="touch-btn pause" id="btn-pause" aria-label="Pause">&#10073;&#10073;</button>
       </div>
 

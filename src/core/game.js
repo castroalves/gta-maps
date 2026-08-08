@@ -16,6 +16,7 @@ import { World } from "../world/world.js";
 import { PlayerCar } from "../entities/player-car.js";
 import { PhysicsSystem } from "../systems/physics-system.js";
 import { RoadSystem } from "../systems/road-system.js";
+import { AutoDriveSystem } from "../systems/auto-drive-system.js";
 import { SpawnSystem } from "../systems/spawn-system.js";
 import { CollisionSystem } from "../systems/collision-system.js";
 import { Menu } from "../ui/menu.js";
@@ -49,6 +50,7 @@ export class Game {
     this.input = new Input();
     this.touchControls = new TouchControls(this.input, this.gameEl);
     this.touchControls.onPause = () => this.togglePause();
+    this.touchControls.onToggleAssist = () => this.toggleAutoDrive();
     this.camera = new Camera();
     this.world = new World();
     this.renderer = new Renderer(this.canvas, this.camera, this.world);
@@ -57,6 +59,7 @@ export class Game {
 
     this.physics = new PhysicsSystem();
     this.roadSystem = new RoadSystem(this.world);
+    this.autoDrive = new AutoDriveSystem(this.world);
     this.spawnSystem = new SpawnSystem(this.world);
     this.collisionSystem = new CollisionSystem(this.world);
 
@@ -92,7 +95,12 @@ export class Game {
         event.preventDefault();
         this.toggleDebug();
       }
+      if (event.code === "KeyY") {
+        this.toggleAutoDrive();
+      }
     });
+
+    this.touchControls.setAssistState(this.autoDrive.enabled);
 
     this.setState(GameState.MENU);
     this.loop.start();
@@ -164,10 +172,16 @@ export class Game {
     this.hud.setDebug(this.debugEnabled);
   }
 
+  toggleAutoDrive() {
+    this.autoDrive.enabled = !this.autoDrive.enabled;
+    this.touchControls.setAssistState(this.autoDrive.enabled);
+  }
+
   // Fixed timestep simulation. Never touches the DOM or canvas.
   update(dt) {
     if (this.state !== GameState.PLAYING || !this.player) return;
-    this.player.interpretInput(this.input.state);
+    const assist = this.autoDrive.enabled ? this.autoDrive.steer(this.player) : 0;
+    this.player.interpretInput(this.input.state, assist);
     const roadResult = this.roadSystem.update(this.player);
     this.physics.update(this.player, dt);
     this.collisionSystem.update(this.player);
@@ -207,6 +221,7 @@ export class Game {
     this.stats.tilesFailed = this.tileManager.stats.failedTiles;
     this.stats.segments = this.world.roadNetwork.segments.length;
     this.stats.cells = this.world.roadNetwork.spatialIndex.cellCount;
+    this.stats.assist = this.autoDrive.enabled;
     this.stats.boundsLabel = this.world.bounds
       ? `${this.world.bounds.south.toFixed(4)},${this.world.bounds.west.toFixed(4)},${this.world.bounds.north.toFixed(4)},${this.world.bounds.east.toFixed(4)}`
       : "-";

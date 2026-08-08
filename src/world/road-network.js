@@ -78,6 +78,30 @@ export class RoadNetwork {
     };
   }
 
+  // Best segment for road-following: prefers segments aligned with the
+  // vehicle's travel direction over closer side streets, so the auto-
+  // drive keeps its lane instead of flipping into cross roads.
+  bestRoadAhead(x, y, heading, radius) {
+    const candidates = this.spatialIndex.query(x, y, radius);
+    const fx = Math.sin(heading);
+    const fy = -Math.cos(heading);
+    let best = null;
+    let bestScore = -Infinity;
+    for (const segment of candidates) {
+      const dx = segment.bx - segment.ax;
+      const dy = segment.by - segment.ay;
+      const len = Math.hypot(dx, dy) || 1;
+      const align = (dx / len) * fx + (dy / len) * fy;
+      const d = distancePointToSegment(x, y, segment.ax, segment.ay, segment.bx, segment.by);
+      const score = align * 2 - d / radius;
+      if (score > bestScore) {
+        bestScore = score;
+        best = segment;
+      }
+    }
+    return best;
+  }
+
   // True when the local point lies inside the loaded OSM bounds, with
   // an optional margin in meters.
   isInsideBounds(x, y, margin = 0) {

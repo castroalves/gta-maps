@@ -23,3 +23,11 @@ export function toRadians(degrees) {
 export function toDegrees(radians) {
   return (radians * 180) / Math.PI;
 }
+
+// Shortest signed angular difference a - b, normalized to [-PI, PI].
+export function angleDiff(a, b) {
+  let d = a - b;
+  while (d > Math.PI) d -= Math.PI * 2;
+  while (d < -Math.PI) d += Math.PI * 2;
+  return d;
+}
