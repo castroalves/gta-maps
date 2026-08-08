@@ -2,22 +2,30 @@
 // plus a provider implementation; nothing else in the engine cares.
 
 export const MAP_CONFIG = {
-  // "osm" uses OpenStreetMap raster tiles (no key required).
-  // "google" requires a browser API key and a Google Maps account.
+  // Default provider id (see src/map/provider-registry.js for all
+  // options). The menu lets the player override this per session.
   provider: "osm",
 
   googleApiKey: "",
+
+  // Free-tier key for the Stadia Maps provider (optional).
+  // Get one at https://cloud.stadiamaps.com — no card required.
+  stadiaApiKey: "",
 
   tileZoom: 18,
 
   tileSize: 256,
 
-  // OSM tiles send CORS headers, which keeps the canvas untainted.
+  // All bundled providers send CORS headers, which keeps the canvas
+  // untainted. Set false for a provider without CORS support.
   crossOrigin: true,
 
   attribution: {
     osm: "© OpenStreetMap contributors",
     google: "Map data © Google",
+    esri: "© Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+    carto: "© OpenStreetMap contributors © CARTO",
+    stadia: "© Stadia Maps © OpenMapTiles © OpenStreetMap contributors",
   },
 };
 

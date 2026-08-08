@@ -67,8 +67,11 @@ Key design decisions (per `specs.md`):
 - **Tiles and geometry are separate systems.** Raster tiles are the visual
   layer; OSM road data (Overpass) is the gameplay geometry layer. The game
   never infers roads from imagery.
-- **Provider abstraction**: `TileProvider` interface with OSM (default) and
-  Google (stub — needs a key) implementations. Geocoding via Nominatim
+- **Provider abstraction**: a `TileProvider` interface with several free
+  providers — OpenStreetMap (default), Esri Streets/Topo/Satellite, Carto
+  Voyager/Dark/Light — all keyless and CORS-enabled. Stadia Maps (free
+  key) and Google (billing account) are available once configured. Pick a
+  provider in the menu's MAP TILES dropdown; geocoding via Nominatim
   (OSM), also isolated in one module.
 - **Spatial index** (uniform grid, 100 m cells) so on-road detection never
   iterates all segments.
@@ -78,9 +81,26 @@ Key design decisions (per `specs.md`):
 
 ## Configuration
 
-- `src/config/map-config.js` — tile provider, attribution, Overpass /
-  Nominatim endpoints, road width table.
+- `src/config/map-config.js` — tile provider registry keys, attribution,
+  Overpass / Nominatim endpoints, road width table, optional Stadia key.
 - `src/config/game-config.js` — physics tuning, zoom, cache size, camera.
+
+## Map tile providers
+
+| Provider | Cost | Key | Look |
+| --- | --- | --- | --- |
+| OpenStreetMap (default) | Free | No | Classic street map |
+| Esri Streets | Free | No | Google-style labeled streets |
+| Esri Topo | Free | No | Topographic hybrid |
+| Esri Satellite | Free | No | Satellite imagery |
+| Carto Voyager / Dark / Light | Free | No | Clean vector-style basemaps |
+| Stadia Maps | Free tier | Yes (`stadiaApiKey`) | Smooth flat map |
+| Google Maps | Paid | Yes (`googleApiKey`) | Google imagery |
+
+All keyless providers are CORS-enabled, so the canvas stays untainted.
+Esri serves tiles in z/y/x order — handled inside its provider class.
+The player picks a provider in the menu each session; the default comes
+from `MAP_CONFIG.provider`.
 
 ## Tests
 

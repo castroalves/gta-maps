@@ -31,9 +31,12 @@ function element(selector) {
       className: "",
       type: "",
       style: {},
+      options: [],
       classList: { add() {}, remove() {}, toggle() {} },
       addEventListener() {},
-      appendChild() {},
+      appendChild(child) {
+        if (Array.isArray(this.options)) this.options.push(child);
+      },
       querySelector: (sel) => element(sel),
       getContext: () => ctxProxy,
       clientWidth: 1280,

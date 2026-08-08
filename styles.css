@@ -265,6 +265,30 @@ body {
   margin-top: 16px;
 }
 
+.field-label {
+  margin-top: 16px;
+  margin-bottom: 6px;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--muted);
+}
+
+#provider-select {
+  width: 100%;
+  background: #0b0e12;
+  color: var(--text);
+  border: 2px solid var(--border);
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+}
+
+#provider-select:focus {
+  border-color: var(--accent-dim);
+}
+
 .preset-button {
   background: transparent;
   color: var(--text);

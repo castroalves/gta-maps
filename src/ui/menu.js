@@ -4,6 +4,8 @@
 // User-facing messages stay non-technical; details go to the console.
 
 import { parseCoordinateInput, searchPlace } from "../geo/geocoder.js";
+import { getProviderOptions } from "../map/provider-registry.js";
+import { MAP_CONFIG } from "../config/map-config.js";
 import { logger } from "../utils/logger.js";
 
 export const PRESET_LOCATIONS = [
@@ -24,6 +26,7 @@ export class Menu {
     this.errorText = dom.querySelector("#error-text");
     this.retryButton = dom.querySelector("#retry-button");
     this.presets = dom.querySelector("#presets");
+    this.providerSelect = dom.querySelector("#provider-select");
     this.lastRequest = null;
     this.busy = false;
 
@@ -41,11 +44,26 @@ export class Menu {
       this.presets.appendChild(button);
     }
 
+    for (const option of getProviderOptions()) {
+      const el = document.createElement("option");
+      el.value = option.id;
+      el.textContent = option.label;
+      this.providerSelect.appendChild(el);
+    }
+    this.providerSelect.value = MAP_CONFIG.provider;
+    if (this.providerSelect.options.length === 0) {
+      this.providerSelect.hidden = true;
+    }
+
     this.retryButton.addEventListener("click", () => {
       if (this.lastRequest) {
         this.submit(this.lastRequest.query, this.lastRequest.location);
       }
     });
+  }
+
+  getSelectedProvider() {
+    return this.providerSelect.value || MAP_CONFIG.provider;
   }
 
   async submit(query, presetLocation) {

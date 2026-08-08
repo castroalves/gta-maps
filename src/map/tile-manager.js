@@ -16,20 +16,30 @@ import { logger } from "../utils/logger.js";
 const TILE_PIXELS = 256;
 
 async function loadBitmap(url, crossOrigin) {
-  const response = await fetch(url, crossOrigin ? { mode: "cors" } : undefined);
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
+  if (crossOrigin) {
+    const response = await fetch(url, { mode: "cors" });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    const blob = await response.blob();
+    // createImageBitmap is preferred; fall back to an <img> on older engines.
+    if (typeof createImageBitmap === "function") {
+      return createImageBitmap(blob);
+    }
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error("image decode failed"));
+      img.src = URL.createObjectURL(blob);
+    });
   }
-  const blob = await response.blob();
-  // createImageBitmap is preferred; fall back to an <img> on older engines.
-  if (typeof createImageBitmap === "function") {
-    return createImageBitmap(blob);
-  }
+  // No-CORS provider: plain <img> load. Taints the canvas, which is
+  // fine — the engine never reads pixels back.
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("image decode failed"));
-    img.src = URL.createObjectURL(blob);
+    img.onerror = () => reject(new Error("image load failed"));
+    img.src = url;
   });
 }
 

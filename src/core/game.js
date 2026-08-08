@@ -10,8 +10,7 @@ import { GameLoop } from "./game-loop.js";
 import { EventBus } from "./event-bus.js";
 import { Renderer } from "../rendering/renderer.js";
 import { TileManager } from "../map/tile-manager.js";
-import { OsmTileProvider } from "../map/osm-tile-provider.js";
-import { GoogleTileProvider } from "../map/google-tile-provider.js";
+import { createTileProvider } from "../map/provider-registry.js";
 import { World } from "../world/world.js";
 import { PlayerCar } from "../entities/player-car.js";
 import { PhysicsSystem } from "../systems/physics-system.js";
@@ -140,10 +139,7 @@ export class Game {
   }
 
   createTileProvider() {
-    if (MAP_CONFIG.provider === "google") {
-      return new GoogleTileProvider();
-    }
-    return new OsmTileProvider();
+    return createTileProvider(this.menu.getSelectedProvider());
   }
 
   togglePause() {

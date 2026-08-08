@@ -21,6 +21,9 @@ import { SpawnSystem } from "../src/systems/spawn-system.js";
 import { Camera } from "../src/core/camera.js";
 import { TileCache } from "../src/map/tile-cache.js";
 import { GAME_CONFIG } from "../src/config/game-config.js";
+import { EsriTileProvider } from "../src/map/esri-tile-provider.js";
+import { CartoTileProvider } from "../src/map/carto-tile-provider.js";
+import { createTileProvider } from "../src/map/provider-registry.js";
 
 let passed = 0;
 let failed = 0;
@@ -224,6 +227,16 @@ cache.set("c", { status: "ready" });
 cache.get("a"); // touch a
 cache.set("d", { status: "ready" }); // evicts b
 check("LRU eviction", cache.get("b") === undefined && cache.get("a") !== undefined && cache.get("d") !== undefined);
+
+// 11. Provider URL formats.
+console.log("tile providers");
+const esri = new EsriTileProvider("World_Street_Map");
+const esriUrl = esri.getTileUrl({ x: 124418, y: 100459, zoom: 18 });
+check("esri uses z/y/x order", esriUrl.includes("/18/100459/124418") && !esriUrl.includes("/18/124418/100459"), esriUrl);
+const carto = new CartoTileProvider("dark_all");
+check("carto url", carto.getTileUrl({ x: 1, y: 2, zoom: 3 }) === "https://a.basemaps.cartocdn.com/dark_all/3/1/2.png");
+check("provider registry default", createTileProvider("osm").getTileUrl({ x: 1, y: 2, zoom: 3 }) === "https://tile.openstreetmap.org/3/1/2.png");
+check("registry esri-streets", createTileProvider("esri-streets").getAttribution().includes("Esri"));
 
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed > 0 ? 1 : 0);
