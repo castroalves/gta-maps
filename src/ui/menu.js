@@ -29,6 +29,7 @@ export class Menu {
     this.providerSelect = dom.querySelector("#provider-select");
     this.lastRequest = null;
     this.busy = false;
+    this.onEnterGame = null; // called synchronously on Play tap (user gesture)
 
     this.form.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -70,6 +71,8 @@ export class Menu {
     if (this.busy) return;
     if (!presetLocation && (!query || !query.trim())) return;
     this.busy = true;
+    // Must run synchronously inside the tap/click gesture.
+    this.onEnterGame?.();
     this.hideError();
     this.showLoading("Loading map...");
     try {

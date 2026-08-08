@@ -26,13 +26,22 @@ Open `http://localhost:8080` in Chrome / Edge / Firefox / Safari (desktop).
 | Space         | handbrake            |
 | Esc           | pause / resume       |
 | F3            | debug overlay        |
+| Y             | toggle auto-steer    |
 
-**Mobile / touch**: the game auto-detects touch devices and shows
-on-screen controls — ◀ ▶ steer (bottom-left), GAS / BRAKE / HB
-(bottom-right), and a pause button (top-right). Multi-touch works via
-pointer events, browser pinch/scroll gestures are locked out during
-gameplay, and portrait phones get compact button sizing. Landscape is
-recommended for the best view.
+**TouchDrive (Asphalt-style, mobile)**: the game auto-detects touch
+devices and enables Asphalt Legends-style controls — **touch anywhere to
+drive, drag left/right to steer proportionally** (a virtual steering
+wheel). The car **auto-follows the road network** (AUTO mode, toggle
+button top-right or `Y` key) while you steer on top for corrections and
+corners; manual steering always wins while you're turning. BRAKE / HB
+buttons sit bottom-right; multi-touch lets one finger steer while
+another brakes. Landscape is recommended.
+
+**Landscape default**: tapping PLAY requests fullscreen and locks the
+orientation to landscape (Android Chrome); on other phones a
+"ROTATE YOUR DEVICE" hint appears in portrait until dismissed. Touch
+controls work with both Pointer Events and legacy touch events, so
+they also work inside in-app browsers (WebViews).
 
 - Pick a preset city, type a place name, or enter coordinates like
   `38.7223,-9.1393`.

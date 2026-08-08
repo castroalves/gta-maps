@@ -52,6 +52,8 @@ let rafCallback = null;
 globalThis.document = {
   querySelector: (sel) => element(sel),
   createElement: (tag) => element(tag),
+  addEventListener() {},
+  hidden: false,
 };
 globalThis.window = {
   addEventListener() {},
@@ -142,6 +144,7 @@ check("touch controls wired", game.touchControls.buttons.length === 4);
 check("steer zone bound", game.touchControls.steerZone !== null);
 check("touch controls hidden on desktop", game.touchControls.dom.hidden === true);
 check("auto-drive on by default", game.autoDrive.enabled === true);
+check("rotate overlay hidden on desktop", game.rotateOverlay.hidden === true);
 
 // Geocoder path: search "Lisboa" -> Nominatim mock -> load world.
 await game.menu.submit("Lisboa");

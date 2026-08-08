@@ -44,6 +44,8 @@ export class Game {
     this.canvas = dom.querySelector("#game-canvas");
     this.pauseOverlay = dom.querySelector("#pause-overlay");
     this.attributionEl = dom.querySelector("#attribution");
+    this.rotateOverlay = dom.querySelector("#rotate-overlay");
+    this.rotateDismissed = false;
     this.state = GameState.BOOT;
 
     this.events = new EventBus();
@@ -67,6 +69,8 @@ export class Game {
     this.menu = new Menu(this.menuEl, (location, onProgress) =>
       this.loadWorld(location, onProgress)
     );
+    // Play tap is a user gesture: use it to request fullscreen/landscape.
+    this.menu.onEnterGame = () => this.enterFullscreenLandscape();
     this.loop = new GameLoop(this);
 
     this.debugEnabled = false;
@@ -85,7 +89,15 @@ export class Game {
     this.input.attach();
     this.canvas.addEventListener("contextmenu", (event) => event.preventDefault());
     this.renderer.resize();
-    window.addEventListener("resize", () => this.renderer.resize());
+    window.addEventListener("resize", () => {
+      this.renderer.resize();
+      this.updateRotateOverlay();
+    });
+    window.addEventListener("orientationchange", () => this.updateRotateOverlay());
+    this.rotateOverlay?.addEventListener("pointerdown", () => {
+      this.rotateDismissed = true;
+      this.updateRotateOverlay();
+    });
     window.addEventListener("keydown", (event) => {
       if (event.code === "Escape" && (this.state === GameState.PLAYING || this.state === GameState.PAUSED)) {
         event.preventDefault();
@@ -117,6 +129,7 @@ export class Game {
     this.touchControls.setVisible(
       state === GameState.PLAYING || state === GameState.PAUSED
     );
+    this.updateRotateOverlay();
   }
 
   async loadWorld(location, onProgress) {
@@ -175,6 +188,37 @@ export class Game {
   toggleAutoDrive() {
     this.autoDrive.enabled = !this.autoDrive.enabled;
     this.touchControls.setAssistState(this.autoDrive.enabled);
+  }
+
+  // Landscape default on phones: best-effort fullscreen + orientation
+  // lock (works on Android Chrome; iOS falls back to the rotate
+  // overlay). Must be called from a user gesture (Play tap).
+  async enterFullscreenLandscape() {
+    if (!TouchControls.isTouchDevice()) return;
+    try {
+      const root = document.documentElement;
+      if (root?.requestFullscreen && !document.fullscreenElement) {
+        await root.requestFullscreen().catch(() => {});
+      }
+      if (screen.orientation?.lock) {
+        await screen.orientation.lock("landscape").catch(() => {});
+      }
+    } catch {
+      // Unsupported: the rotate overlay covers this case.
+    }
+  }
+
+  updateRotateOverlay() {
+    if (!this.rotateOverlay) return;
+    const portrait = window.innerHeight > window.innerWidth;
+    const playing =
+      this.state === GameState.PLAYING || this.state === GameState.PAUSED;
+    this.rotateOverlay.hidden = !(
+      playing &&
+      portrait &&
+      TouchControls.isTouchDevice() &&
+      !this.rotateDismissed
+    );
   }
 
   // Fixed timestep simulation. Never touches the DOM or canvas.

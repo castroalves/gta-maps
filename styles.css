@@ -320,6 +320,70 @@ body {
 }
 
 /* ------------------------------------------------------------------ */
+/* Rotate-to-landscape hint (mobile portrait)                          */
+/* ------------------------------------------------------------------ */
+
+#rotate-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 8, 10, 0.5);
+  pointer-events: none;
+  z-index: 30;
+}
+
+.rotate-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 28px;
+  border: 2px solid var(--border);
+  background: rgba(16, 22, 28, 0.94);
+  color: var(--accent);
+  font-size: 14px;
+  letter-spacing: 3px;
+  text-align: center;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.rotate-icon {
+  font-size: 36px;
+  line-height: 1;
+  display: inline-block;
+  animation: rotate-hint 1.6s ease-in-out infinite;
+}
+
+@keyframes rotate-hint {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(90deg);
+  }
+}
+
+#rotate-dismiss {
+  pointer-events: auto;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+#rotate-dismiss:hover {
+  color: var(--text);
+  border-color: var(--accent-dim);
+}
+
+/* ------------------------------------------------------------------ */
 /* Menu                                                                */
 /* ------------------------------------------------------------------ */
 
