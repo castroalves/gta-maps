@@ -1,0 +1,347 @@
+:root {
+  --bg: #0b0e12;
+  --panel: #141a20;
+  --border: #2c3a46;
+  --accent: #54ff9f;
+  --accent-dim: #1f8a5a;
+  --danger: #ff5540;
+  --yellow: #ffd23f;
+  --text: #d8e2e8;
+  --muted: #7d8b95;
+  --font: "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Respect the hidden attribute regardless of more specific selectors. */
+[hidden] {
+  display: none !important;
+}
+
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ------------------------------------------------------------------ */
+/* Game stage                                                          */
+/* ------------------------------------------------------------------ */
+
+#game {
+  position: absolute;
+  inset: 0;
+}
+
+#game-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Retro scanline overlay (pure CSS, pointer-transparent). */
+#scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.14) 0px,
+    rgba(0, 0, 0, 0.14) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.55;
+}
+
+/* ------------------------------------------------------------------ */
+/* HUD                                                                 */
+/* ------------------------------------------------------------------ */
+
+#hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+  z-index: 2;
+}
+
+#hud-left {
+  text-align: left;
+}
+
+#hud-speed {
+  font-size: 46px;
+  font-weight: bold;
+  line-height: 0.9;
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(84, 255, 159, 0.55), 3px 3px 0 #000;
+}
+
+#hud-speed-unit {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--muted);
+  margin-top: 2px;
+  text-shadow: 1px 1px 0 #000;
+}
+
+#hud-right {
+  text-align: right;
+}
+
+#hud-coords {
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  text-shadow: 1px 1px 0 #000;
+}
+
+#hud-status {
+  margin-top: 4px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--accent);
+  text-shadow: 1px 1px 0 #000;
+}
+
+#hud-status.off-road {
+  color: var(--danger);
+}
+
+#hud-debug {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--yellow);
+  background: rgba(5, 8, 10, 0.72);
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  text-shadow: 1px 1px 0 #000;
+  white-space: pre;
+}
+
+#hud-warning {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--danger);
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 4px;
+  white-space: nowrap;
+  text-shadow: 2px 2px 0 #000, 0 0 14px rgba(255, 85, 64, 0.8);
+  animation: blink 0.9s steps(2, start) infinite;
+  pointer-events: none;
+  z-index: 3;
+}
+
+#pause-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 8, 10, 0.72);
+  color: var(--accent);
+  font-size: 42px;
+  font-weight: bold;
+  letter-spacing: 12px;
+  text-shadow: 4px 4px 0 #000, 0 0 18px rgba(84, 255, 159, 0.6);
+  z-index: 5;
+}
+
+/* ------------------------------------------------------------------ */
+/* Menu                                                                */
+/* ------------------------------------------------------------------ */
+
+#menu {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 28%, #16202a 0%, #0b0e12 72%);
+  z-index: 10;
+}
+
+.menu-panel {
+  width: min(540px, 92vw);
+  padding: 30px 28px;
+  border: 2px solid var(--border);
+  background: rgba(16, 22, 28, 0.92);
+  box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.55);
+}
+
+.game-title {
+  font-size: 34px;
+  letter-spacing: 5px;
+  color: var(--accent);
+  text-align: center;
+  text-shadow: 0 0 16px rgba(84, 255, 159, 0.5), 4px 4px 0 #000;
+}
+
+.tagline {
+  text-align: center;
+  color: var(--muted);
+  margin: 10px 0 24px;
+  font-size: 11px;
+  letter-spacing: 3px;
+}
+
+#location-form {
+  display: flex;
+  gap: 8px;
+}
+
+#location-input {
+  flex: 1;
+  min-width: 0;
+  background: #0b0e12;
+  color: var(--text);
+  border: 2px solid var(--border);
+  padding: 11px 12px;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+#location-input:focus {
+  border-color: var(--accent-dim);
+}
+
+#play-button {
+  background: var(--accent);
+  color: #04120a;
+  border: none;
+  padding: 11px 22px;
+  font-family: inherit;
+  font-weight: bold;
+  letter-spacing: 2px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#play-button:hover {
+  background: var(--yellow);
+}
+
+#presets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.preset-button {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px;
+  font-family: inherit;
+  letter-spacing: 1px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.preset-button:hover {
+  border-color: var(--accent-dim);
+  color: var(--accent);
+}
+
+#loading {
+  margin-top: 16px;
+  color: var(--yellow);
+  letter-spacing: 2px;
+  font-size: 13px;
+  animation: blink 0.9s steps(2, start) infinite;
+}
+
+#error {
+  margin-top: 16px;
+  color: var(--danger);
+  font-size: 13px;
+}
+
+#error-text {
+  display: block;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+#retry-button {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  padding: 8px 18px;
+  font-family: inherit;
+  letter-spacing: 2px;
+  cursor: pointer;
+}
+
+#retry-button:hover {
+  background: var(--danger);
+  color: #120300;
+}
+
+.hint {
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------------ */
+/* Attribution (must stay visible; never obscured by HUD)              */
+/* ------------------------------------------------------------------ */
+
+.attribution {
+  position: absolute;
+  bottom: 6px;
+  right: 12px;
+  color: rgba(216, 226, 232, 0.65);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 0 #000;
+  pointer-events: none;
+  z-index: 20;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.25;
+  }
+}

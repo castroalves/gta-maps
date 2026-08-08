@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STREET RACER '97 — Top-Down Arcade Driving</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main id="app">
+    <section id="menu">
+      <div class="menu-panel">
+        <h1 class="game-title">STREET RACER&nbsp;'97</h1>
+        <p class="tagline">TOP-DOWN ARCADE DRIVING ON REAL STREETS</p>
+
+        <form id="location-form">
+          <input
+            id="location-input"
+            type="text"
+            placeholder="City, address, landmark or lat,lng"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button id="play-button" type="submit">PLAY</button>
+        </form>
+
+        <div id="presets" aria-label="Preset locations"></div>
+
+        <div id="loading" hidden>Loading map...</div>
+
+        <div id="error" hidden>
+          <span id="error-text"></span>
+          <button id="retry-button" type="button">RETRY</button>
+        </div>
+      </div>
+      <p class="hint">WASD / arrows to drive &middot; SPACE handbrake &middot; ESC pause &middot; F3 debug</p>
+    </section>
+
+    <section id="game" hidden>
+      <canvas id="game-canvas"></canvas>
+      <div id="hud">
+        <div id="hud-left">
+          <div id="hud-speed">0</div>
+          <div id="hud-speed-unit">KM/H</div>
+        </div>
+        <div id="hud-right">
+          <div id="hud-coords">-</div>
+          <div id="hud-status" hidden>ON ROAD</div>
+        </div>
+        <pre id="hud-debug" hidden></pre>
+      </div>
+      <div id="hud-warning" hidden>LEAVING LOADED AREA</div>
+      <div id="pause-overlay" hidden>PAUSED</div>
+      <div id="scanlines" aria-hidden="true"></div>
+    </section>
+
+    <p id="attribution" class="attribution">© OpenStreetMap contributors</p>
+  </main>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
