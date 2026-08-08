@@ -11,6 +11,14 @@ export class Input {
   constructor() {
     this.keys = new Set();
     this.capture = false;
+    // Virtual (touch) input merges with keyboard in refresh().
+    this.virtual = {
+      accelerate: false,
+      brake: false,
+      left: false,
+      right: false,
+      handbrake: false,
+    };
     this.state = {
       accelerate: false,
       brake: false,
@@ -62,17 +70,33 @@ export class Input {
     this.refresh();
   }
 
+  // Set a virtual (touch) input flag. Ignored if the action is unknown.
+  setVirtual(action, pressed) {
+    if (!(action in this.virtual)) return;
+    this.virtual[action] = pressed;
+    this.refresh();
+  }
+
   refresh() {
     const s = this.state;
-    s.accelerate = this.keys.has("KeyW") || this.keys.has("ArrowUp");
-    s.brake = this.keys.has("KeyS") || this.keys.has("ArrowDown");
-    s.left = this.keys.has("KeyA") || this.keys.has("ArrowLeft");
-    s.right = this.keys.has("KeyD") || this.keys.has("ArrowRight");
-    s.handbrake = this.keys.has("Space");
+    const k = this.keys;
+    const v = this.virtual;
+    s.accelerate = k.has("KeyW") || k.has("ArrowUp") || v.accelerate;
+    s.brake = k.has("KeyS") || k.has("ArrowDown") || v.brake;
+    s.left = k.has("KeyA") || k.has("ArrowLeft") || v.left;
+    s.right = k.has("KeyD") || k.has("ArrowRight") || v.right;
+    s.handbrake = k.has("Space") || v.handbrake;
   }
 
   clear() {
     this.keys.clear();
+    this.virtual = {
+      accelerate: false,
+      brake: false,
+      left: false,
+      right: false,
+      handbrake: false,
+    };
     this.refresh();
   }
 }

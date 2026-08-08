@@ -21,6 +21,7 @@ import { SpawnSystem } from "../src/systems/spawn-system.js";
 import { Camera } from "../src/core/camera.js";
 import { TileCache } from "../src/map/tile-cache.js";
 import { GAME_CONFIG } from "../src/config/game-config.js";
+import { Input } from "../src/core/input.js";
 import { EsriTileProvider } from "../src/map/esri-tile-provider.js";
 import { CartoTileProvider } from "../src/map/carto-tile-provider.js";
 import { createTileProvider } from "../src/map/provider-registry.js";
@@ -237,6 +238,17 @@ const carto = new CartoTileProvider("dark_all");
 check("carto url", carto.getTileUrl({ x: 1, y: 2, zoom: 3 }) === "https://a.basemaps.cartocdn.com/dark_all/3/1/2.png");
 check("provider registry default", createTileProvider("osm").getTileUrl({ x: 1, y: 2, zoom: 3 }) === "https://tile.openstreetmap.org/3/1/2.png");
 check("registry esri-streets", createTileProvider("esri-streets").getAttribution().includes("Esri"));
+
+// 12. Virtual (touch) input.
+console.log("virtual input");
+const inp = new Input();
+inp.setVirtual("accelerate", true);
+check("virtual accelerate", inp.state.accelerate === true);
+inp.setVirtual("accelerate", false);
+check("virtual release", inp.state.accelerate === false);
+inp.setVirtual("handbrake", true);
+inp.clear();
+check("clear resets virtual", inp.state.handbrake === false);
 
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed > 0 ? 1 : 0);

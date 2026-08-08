@@ -5,6 +5,7 @@
 import { GAME_CONFIG } from "../config/game-config.js";
 import { MAP_CONFIG } from "../config/map-config.js";
 import { Input } from "./input.js";
+import { TouchControls } from "./touch-controls.js";
 import { Camera } from "./camera.js";
 import { GameLoop } from "./game-loop.js";
 import { EventBus } from "./event-bus.js";
@@ -46,6 +47,8 @@ export class Game {
 
     this.events = new EventBus();
     this.input = new Input();
+    this.touchControls = new TouchControls(this.input, this.gameEl);
+    this.touchControls.onPause = () => this.togglePause();
     this.camera = new Camera();
     this.world = new World();
     this.renderer = new Renderer(this.canvas, this.camera, this.world);
@@ -77,6 +80,7 @@ export class Game {
 
   async init() {
     this.input.attach();
+    this.canvas.addEventListener("contextmenu", (event) => event.preventDefault());
     this.renderer.resize();
     window.addEventListener("resize", () => this.renderer.resize());
     window.addEventListener("keydown", (event) => {
@@ -102,6 +106,9 @@ export class Game {
     this.gameEl.hidden = state !== GameState.PLAYING && state !== GameState.PAUSED;
     this.pauseOverlay.hidden = state !== GameState.PAUSED;
     this.input.setCapture(state === GameState.PLAYING || state === GameState.PAUSED);
+    this.touchControls.setVisible(
+      state === GameState.PLAYING || state === GameState.PAUSED
+    );
   }
 
   async loadWorld(location, onProgress) {

@@ -20,6 +20,8 @@
 html,
 body {
   height: 100%;
+  touch-action: none;
+  overscroll-behavior: none;
 }
 
 body {
@@ -57,6 +59,11 @@ body {
   width: 100%;
   height: 100%;
   display: block;
+  touch-action: none;
+}
+
+#game {
+  -webkit-touch-callout: none;
 }
 
 /* Retro scanline overlay (pure CSS, pointer-transparent). */
@@ -178,6 +185,149 @@ body {
   letter-spacing: 12px;
   text-shadow: 4px 4px 0 #000, 0 0 18px rgba(84, 255, 159, 0.6);
   z-index: 5;
+}
+
+/* ------------------------------------------------------------------ */
+/* Touch controls (mobile)                                             */
+/* ------------------------------------------------------------------ */
+
+#touch-controls {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.touch-btn {
+  position: absolute;
+  pointer-events: auto;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(18, 28, 38, 0.62);
+  color: var(--text);
+  border: 2px solid rgba(120, 160, 180, 0.5);
+  border-radius: 14px;
+  font-family: var(--font);
+  font-weight: bold;
+  font-size: 22px;
+  line-height: 1;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.touch-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
+}
+
+#btn-left {
+  left: 20px;
+  bottom: 28px;
+  width: 84px;
+  height: 84px;
+}
+
+#btn-right {
+  left: 118px;
+  bottom: 28px;
+  width: 84px;
+  height: 84px;
+}
+
+#btn-gas {
+  right: 20px;
+  bottom: 28px;
+  width: 96px;
+  height: 96px;
+  background: rgba(84, 255, 159, 0.16);
+  border-color: rgba(84, 255, 159, 0.6);
+  color: var(--accent);
+  font-size: 26px;
+  letter-spacing: 2px;
+}
+
+#btn-brake {
+  right: 130px;
+  bottom: 28px;
+  width: 76px;
+  height: 76px;
+  background: rgba(255, 85, 64, 0.14);
+  border-color: rgba(255, 85, 64, 0.5);
+  color: var(--danger);
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+
+#btn-handbrake {
+  right: 130px;
+  bottom: 118px;
+  width: 60px;
+  height: 60px;
+  font-size: 13px;
+  background: rgba(255, 210, 63, 0.12);
+  border-color: rgba(255, 210, 63, 0.5);
+  color: var(--yellow);
+}
+
+#btn-pause {
+  top: 58px;
+  right: 14px;
+  width: 46px;
+  height: 46px;
+  font-size: 18px;
+  color: var(--text);
+}
+
+/* Compact sizing on small phones (portrait). */
+@media (max-width: 520px) {
+  #btn-left {
+    left: 12px;
+    width: 72px;
+    height: 72px;
+  }
+  #btn-right {
+    left: 94px;
+    width: 72px;
+    height: 72px;
+  }
+  #btn-gas {
+    right: 12px;
+    width: 84px;
+    height: 84px;
+    font-size: 22px;
+  }
+  #btn-brake {
+    right: 104px;
+    width: 64px;
+    height: 64px;
+    font-size: 13px;
+  }
+  #btn-handbrake {
+    right: 104px;
+    bottom: 92px;
+    width: 52px;
+    height: 52px;
+    font-size: 11px;
+  }
+  #btn-pause {
+    top: 54px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* On touch devices keep the debug panel clear of the steering buttons. */
+@media (pointer: coarse) {
+  #hud-debug {
+    top: 64px;
+    bottom: auto;
+    left: 12px;
+  }
 }
 
 /* ------------------------------------------------------------------ */

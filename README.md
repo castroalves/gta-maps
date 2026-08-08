@@ -27,6 +27,13 @@ Open `http://localhost:8080` in Chrome / Edge / Firefox / Safari (desktop).
 | Esc           | pause / resume       |
 | F3            | debug overlay        |
 
+**Mobile / touch**: the game auto-detects touch devices and shows
+on-screen controls — ◀ ▶ steer (bottom-left), GAS / BRAKE / HB
+(bottom-right), and a pause button (top-right). Multi-touch works via
+pointer events, browser pinch/scroll gestures are locked out during
+gameplay, and portrait phones get compact button sizing. Landscape is
+recommended for the best view.
+
 - Pick a preset city, type a place name, or enter coordinates like
   `38.7223,-9.1393`.
 - The car spawns on the nearest real road to the chosen point.

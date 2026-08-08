@@ -59,6 +59,7 @@ globalThis.window = {
   devicePixelRatio: 1,
   innerWidth: 1280,
   innerHeight: 720,
+  matchMedia: () => ({ matches: false }),
 };
 globalThis.requestAnimationFrame = (cb) => {
   rafCallback = cb;
@@ -137,6 +138,8 @@ const game = new Game(dom);
 
 await game.init();
 check("boots to MENU", game.state === GameState.MENU);
+check("touch controls wired", game.touchControls.buttons.length === 6);
+check("touch controls hidden on desktop", game.touchControls.dom.hidden === true);
 
 // Geocoder path: search "Lisboa" -> Nominatim mock -> load world.
 await game.menu.submit("Lisboa");
