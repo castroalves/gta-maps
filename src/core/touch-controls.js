@@ -17,6 +17,7 @@
 //    touchstart anywhere activates the touch UI at runtime.
 
 import { clamp } from "../utils/math.js";
+import { logger } from "../utils/logger.js";
 
 export class TouchControls {
   constructor(input, dom) {
@@ -96,28 +97,39 @@ export class TouchControls {
   // ------------------------------------------------------------------
 
   bindSteerZone(zone) {
-    if (!zone) return;
+    // Steering is bound by delegation on the whole game element, not
+    // just the zone div, so a touch anywhere on the game area (canvas,
+    // map, empty space) starts driving no matter which element the
+    // browser picks as the event target. Buttons are excluded so they
+    // keep their own press/release semantics.
+    const root = this.dom;
+    if (!root) return;
+    const isUiButton = (target) =>
+      Boolean(target && typeof target.closest === "function" && target.closest("button"));
+
     if (this.usePointer) {
-      zone.addEventListener("pointerdown", (event) => {
+      root.addEventListener("pointerdown", (event) => {
+        if (isUiButton(event.target)) return;
         if (this.activePointer !== null) return; // one steering finger
         this.activePointer = event.pointerId;
         event.preventDefault();
         this.beginSteer(event.clientX);
       });
-      zone.addEventListener("pointermove", (event) => {
+      root.addEventListener("pointermove", (event) => {
         if (event.pointerId !== this.activePointer) return;
         this.updateSteer(event.clientX);
       });
-      zone.addEventListener("pointerup", (event) => {
+      root.addEventListener("pointerup", (event) => {
         if (event.pointerId === this.activePointer) this.endSteer();
       });
-      zone.addEventListener("pointercancel", (event) => {
+      root.addEventListener("pointercancel", (event) => {
         if (event.pointerId === this.activePointer) this.endSteer();
       });
     } else {
-      zone.addEventListener(
+      root.addEventListener(
         "touchstart",
         (event) => {
+          if (isUiButton(event.target)) return;
           if (this.activePointer !== null) return;
           event.preventDefault();
           const touch = event.touches[0];
@@ -126,7 +138,7 @@ export class TouchControls {
         },
         { passive: false }
       );
-      zone.addEventListener(
+      root.addEventListener(
         "touchmove",
         (event) => {
           const touch = Array.from(event.touches).find(
@@ -142,14 +154,15 @@ export class TouchControls {
         );
         if (ended) this.endSteer();
       };
-      zone.addEventListener("touchend", endTouch);
-      zone.addEventListener("touchcancel", endTouch);
+      root.addEventListener("touchend", endTouch);
+      root.addEventListener("touchcancel", endTouch);
     }
   }
 
   beginSteer(clientX) {
     this.input.setVirtual("accelerate", true);
     this.updateSteer(clientX);
+    logger.debug("touch", "steer begin");
   }
 
   // Position-based steering: finger left of center steers left,
@@ -170,6 +183,7 @@ export class TouchControls {
     this.activePointer = null;
     this.input.setVirtual("accelerate", false);
     this.input.setSteer(0);
+    logger.debug("touch", "steer end");
   }
 
   // ------------------------------------------------------------------

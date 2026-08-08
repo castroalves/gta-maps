@@ -50,9 +50,15 @@ export class Game {
 
     this.events = new EventBus();
     this.input = new Input();
-    this.touchControls = new TouchControls(this.input, this.gameEl);
-    this.touchControls.onPause = () => this.togglePause();
-    this.touchControls.onToggleAssist = () => this.toggleAutoDrive();
+    // Defensive: a touch-controls failure must never brick the boot.
+    try {
+      this.touchControls = new TouchControls(this.input, this.gameEl);
+      this.touchControls.onPause = () => this.togglePause();
+      this.touchControls.onToggleAssist = () => this.toggleAutoDrive();
+    } catch (error) {
+      logger.error("game", "touch controls init failed:", error);
+      this.touchControls = { setVisible() {}, setAssistState() {} };
+    }
     this.camera = new Camera();
     this.world = new World();
     this.renderer = new Renderer(this.canvas, this.camera, this.world);
@@ -266,6 +272,7 @@ export class Game {
     this.stats.segments = this.world.roadNetwork.segments.length;
     this.stats.cells = this.world.roadNetwork.spatialIndex.cellCount;
     this.stats.assist = this.autoDrive.enabled;
+    this.stats.input = this.input.state;
     this.stats.boundsLabel = this.world.bounds
       ? `${this.world.bounds.south.toFixed(4)},${this.world.bounds.west.toFixed(4)},${this.world.bounds.north.toFixed(4)},${this.world.bounds.east.toFixed(4)}`
       : "-";

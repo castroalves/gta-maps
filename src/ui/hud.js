@@ -55,6 +55,7 @@ export class Hud {
         `KM/H ${kmh.toFixed(1)}  |  ${player.speed.toFixed(2)} m/s`,
         `STATUS ${player.onRoad ? "ON ROAD" : "OFF ROAD"}`,
         `ASSIST ${stats.assist ? "AUTO (road-follow)" : "MANUAL"}`,
+        `INPUT acc=${stats.input?.accelerate ? 1 : 0} brk=${stats.input?.brake ? 1 : 0} steer=${(stats.input?.steer ?? 0).toFixed(2)}`,
         `HEADING ${toDegrees(player.heading).toFixed(1)} deg`,
         `POS ${player.position.x.toFixed(1)}, ${player.position.y.toFixed(1)} m`,
         `GEO ${geo.lat.toFixed(6)}, ${geo.lng.toFixed(6)}`,

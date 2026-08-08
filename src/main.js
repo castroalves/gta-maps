@@ -7,6 +7,9 @@ import { logger } from "./utils/logger.js";
 const dom = document.querySelector("#app");
 
 const game = new Game(dom);
+// Debug handle: window.__game lets you inspect game state from the
+// console (e.g. chrome://inspect on Android).
+window.__game = game;
 game.init().catch((error) => {
   logger.error("game", "fatal startup error:", error);
   const errorBox = document.querySelector("#error");
